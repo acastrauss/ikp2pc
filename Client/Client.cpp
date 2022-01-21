@@ -196,7 +196,7 @@ BufferInput GetBufferForInput(unsigned int input)
         std::cout << "Enter student index number:" << std::endl;
         std::cin >> pce.StudentIndex;
 
-        std::cout << "Enter class name:" << std::endl;
+            std::cout << "Enter class name:" << std::endl;
         std::cin >> pce.ClassName;
 
         std::cout << "Enter grade:" << std::endl;

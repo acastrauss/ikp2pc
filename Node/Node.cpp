@@ -25,7 +25,7 @@ short GetPort(
 
 std::deque<unsigned short> GetOtherPorts(unsigned short myPort, unsigned short firstPort);
 
-void SyncWithNodesFirstTime(std::deque<unsigned short> ports, StudentDB* localDb);
+void SyncWithNodesFirstTime(std::vector<unsigned short> ports, StudentDB* localDb);
 bool TwoPhaseCommit(StudentDB* localDb, unsigned short myInternalPort);
 /// <summary>
 /// List for client connections and process them
@@ -176,7 +176,7 @@ std::deque<unsigned short> GetOtherPorts(unsigned short myPort, unsigned short f
     return ports;
 }
 
-void SyncWithNodesFirstTime(std::deque<unsigned short> ports, StudentDB* localDb)
+void SyncWithNodesFirstTime(std::vector<unsigned short> ports, StudentDB* localDb)
 {
     if (ports.empty()) return;
 
@@ -286,9 +286,7 @@ short GetPort(
             printf("bind failed with error: %d\n", WSAGetLastError());
             freeaddrinfo(*serverAddress);
             
-            if (++portToUse >= 
-                    firstPort + nodesNumber
-                )
+            if (++portToUse >= firstPort + nodesNumber)
             {
                 std::cout << "No ports available for node." << std::endl;
                 closesocket(*listenSocket);
@@ -296,7 +294,7 @@ short GetPort(
                 return -1;
             }
             else {
-                if (firstPort != nodesFirstExternalPort && ports != NULL) {
+                if (ports != NULL) {
                     ports->push_back(portToUse - 1);
                 }
 
@@ -681,11 +679,16 @@ DWORD __stdcall WaitForSync(LPVOID lpParam) {
     addrinfo* resultingAddress = NULL;
     addrinfo hints;
 
-    unsigned short syncPort = GetPort(&listenSocket, &resultingAddress, &hints, nodesFirstSyncPort);
+    std::vector<unsigned short> otherPorts = {};
 
-    auto otherPorts = GetOtherPorts(syncPort, nodesFirstSyncPort);
+    unsigned short syncPort = GetPort(&listenSocket, &resultingAddress, &hints, nodesFirstSyncPort, &otherPorts);
 
-    SyncWithNodesFirstTime(otherPorts, &students);
+    if (otherPorts.size() > 0) {
+        SyncWithNodesFirstTime(otherPorts, &students);
+    }
+    else {
+        std::cout << "No other nodes on." << std::endl;
+    }
 
     iResult = listen(listenSocket, SOMAXCONN);
     if (iResult == SOCKET_ERROR)
