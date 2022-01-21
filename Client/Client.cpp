@@ -17,7 +17,7 @@ struct BufferInput {
 };
 
 bool InitializeWindowsSockets();
-unsigned short GetRandomNodePort();
+unsigned short GetRandomNodePort(std::vector<unsigned short>& allNodesPorts);
 unsigned int GetUserInput();
 BufferInput GetBufferForInput(unsigned int input);
 
@@ -48,12 +48,32 @@ int main()
         return 1;
     }
 
-    // create and initialize address structure
-    sockaddr_in serverAddress;
-    serverAddress.sin_family = AF_INET;
-    serverAddress.sin_addr.s_addr = inet_addr("127.0.0.1");
-    serverAddress.sin_port = htons(GetRandomNodePort());
+    std::vector<unsigned short> allNodePorts = {};
 
+    for (int i = nodesFirstExternalPort; i < nodesFirstExternalPort + nodesNumber; i++)
+    {
+        allNodePorts.push_back(i);
+    }
+
+    while (allNodePorts.size() > 0)
+    {
+        // create and initialize address structure
+        sockaddr_in serverAddress;
+        serverAddress.sin_family = AF_INET;
+        serverAddress.sin_addr.s_addr = inet_addr("127.0.0.1");
+        serverAddress.sin_port = htons(GetRandomNodePort(allNodePorts));
+
+        // connect to server specified in serverAddress and socket connectSocket
+        if (connect(connectSocket, (SOCKADDR*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR)
+        {
+            printf("Unable to connect.\n");
+            continue;
+        }
+        else {
+            break;
+        }
+    }
+    
     unsigned int userInput = GetUserInput();
     std::vector<unsigned int> possibleInputs = { 1, 2, 3 };
     
@@ -64,17 +84,7 @@ int main()
     );
 
     if (it != possibleInputs.end()) {
-
-        std::cout << "Found input" << std::endl;
-
-        // connect to server specified in serverAddress and socket connectSocket
-        if (connect(connectSocket, (SOCKADDR*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR)
-        {
-            printf("Unable to connect to server.\n");
-            closesocket(connectSocket);
-            WSACleanup();
-        }
-
+        
         std::string userInputStr = std::to_string(userInput);
 
         iResult = send(connectSocket, userInputStr.c_str(), (int)userInputStr.size() + 1, 0);
@@ -127,6 +137,7 @@ int main()
     WSACleanup();
 
     std::getchar();
+    std::getchar();
 
     return 0;
 }
@@ -145,15 +156,26 @@ bool InitializeWindowsSockets()
 
 bool firstCall = false;
 
-unsigned short GetRandomNodePort()
+unsigned short GetRandomNodePort(std::vector<unsigned short>& allNodesPorts)
 {
     srand(time(NULL));
-    auto rrr = (unsigned short)(
-        nodesFirstExternalPort + rand() % nodesNumber);
 
-    std::cout << "Connecting to port:" << rrr << std::endl;
+    int randInd = rand() % allNodesPorts.size();
+    unsigned short randPort = allNodesPorts[randInd];
 
-    return rrr;
+    auto it = std::find(
+        allNodesPorts.begin(),
+        allNodesPorts.end(),
+        randPort
+    );
+
+    if (it != allNodesPorts.end()) {
+        allNodesPorts.erase(it);
+    }
+
+    std::cout << "Trying to connect to port:" << randPort << std::endl;
+
+    return randPort;
 }
 
 unsigned int GetUserInput()

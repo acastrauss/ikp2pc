@@ -1,5 +1,2 @@
-﻿  Node.cpp
-D:\ikp_projekat_2pc\DB2PC\Node\Node.cpp(356,9): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-D:\ikp_projekat_2pc\DB2PC\Node\Node.cpp(395,13): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-D:\ikp_projekat_2pc\DB2PC\Node\Node.cpp(676,10): warning C4101: 'recvbuf': unreferenced local variable
+﻿  ThreadingMethods.cpp
   Node.vcxproj -> D:\ikp_projekat_2pc\DB2PC\x64\Debug\Node.exe

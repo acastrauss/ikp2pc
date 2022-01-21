@@ -142,11 +142,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Node.cpp" />
+    <ClCompile Include="Threading\NetworkHelpMethods.cpp" />
+    <ClCompile Include="Threading\NodeThreadParam.cpp" />
+    <ClCompile Include="Threading\ThreadingMethods.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Models\Models.vcxproj">
       <Project>{6155516c-4b57-485d-85f1-d54a942c9c0a}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Threading\NetworkHelpMethods.h" />
+    <ClInclude Include="Threading\NodeThreadParam.h" />
+    <ClInclude Include="Threading\ThreadingMethods.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
